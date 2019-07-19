@@ -15,10 +15,11 @@ def print_log(file_path: str, grep_str: Optional[str], super_str: Optional[str],
               time_gt: str, time_lt: str, time_eq: str, verbosity: int):
     with open(file_path) as f:
         line = f.readline()
-        total_lines = 1
+        total_lines = 0
         print_lines = 0
         error_lines = 0
         while line:
+            total_lines += 1
             try:
                 data = json.loads(line)
 
@@ -45,7 +46,6 @@ def print_log(file_path: str, grep_str: Optional[str], super_str: Optional[str],
                 error_lines += 1
             finally:
                 line = f.readline()
-                total_lines += 1
         if verbosity > 0:
             print(f' --- Filtered {print_lines} records (total {total_lines}, errors {error_lines}) ---')
 
