@@ -53,13 +53,13 @@ def print_log(file_path: str, grep_str: Optional[str], super_str: Optional[str],
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("file", help="File to parse as json log")
-    parser.add_argument("-s", "--string", help="String to apply as filter to message field")
-    parser.add_argument("-ss", "--super_string", help="String to apply as filter to whole json record")
-    parser.add_argument("-g", "--time_gt", help="Time is greater than")
-    parser.add_argument("-l", "--time_lt", help="Time is less than")
-    parser.add_argument("-t", "--time_eq", help="Time equals")
+    parser.add_argument("-s", "--string", help="String to apply as filter to message field", nargs='?')
+    parser.add_argument("-ss", "--super_string", help="String to apply as filter to whole json record", nargs='?')
+    parser.add_argument("-g", "--time_gt", help="Time is greater than", nargs='?')
+    parser.add_argument("-l", "--time_lt", help="Time is less than", nargs='?')
+    parser.add_argument("-t", "--time_eq", help="Time equals", nargs='?')
     parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1, 2], default=Settings.VERBOSITY,
-                        help="Increase output verbosity")
+                        help="Increase output verbosity", nargs='?')
     args = parser.parse_args()
     print_log(args.file, args.string, args.super_string,
               time_gt=args.time_gt, time_lt=args.time_lt, time_eq=args.time_eq,
