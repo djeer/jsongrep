@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-import sys
+import argparse
+from datetime import datetime
 from typing import Optional
 
 from settings import Settings
@@ -28,11 +29,10 @@ def print_log(file_path: str, grep_str: Optional[str]):
 
 
 if __name__ == '__main__':
-    file_path = sys.argv[1]
-    try:
-        grep_str = sys.argv[2]
-    except IndexError:
-        grep_str = None
-
-    print_log(file_path, grep_str)
-
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", help="File to parse as json log")
+    parser.add_argument("-s", "--string", help="File to parse as json log")
+    # TODO parser.add_argument("-t", "--start", help="Time is greater than")
+    # TODO parser.add_argument("-u", "--until", help="Time is less than")
+    args = parser.parse_args()
+    print_log(args.file, args.string)

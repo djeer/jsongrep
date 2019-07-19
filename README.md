@@ -1,6 +1,6 @@
-###### Small utility to grep logs encoded in JSON format
+### Small utility to grep logs encoded in JSON format
 
-Usage:
+#### Usage:
 
 _Print all json messages text:_
 
