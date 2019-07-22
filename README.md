@@ -37,10 +37,9 @@ Time comparing is naive, it compares python strings. It works well for all iso-l
 
 #### Handle stdin UNIX pipeline:
 
-just write `stdin` instead of filename
 
-`tail -f transfer_transactions.log | jsongrep stdin`
+`tail -f transfer_transactions.log | jsongrep `
 
 or with filter:
 
-`tail -f transfer_transactions.log | jsongrep stdin -s sometext`
+`tail -f transfer_transactions.log | jsongrep -s sometext`

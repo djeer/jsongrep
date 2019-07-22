@@ -5,7 +5,7 @@ import argparse
 import sys
 
 try:
-    import ujson as json
+    import ujson as json  # import faster parser, if present
 except ImportError:
     import json
 
@@ -16,75 +16,61 @@ class Settings:
     VERBOSITY = 1
 
 
-def process_line(line, grep_str, exclude_str, super_str, time_gt, time_lt, time_eq):
+def process_line(line, params):
     data = json.loads(line)
 
-    if super_str and super_str not in line:
+    if params.super_string and params.super_string not in line:
         return
 
     msg = data[Settings.MESSAGE_FIELD]
-    if grep_str and grep_str not in msg:
-        return None, None
-    if exclude_str and exclude_str in msg:
-        return None, None
+    if params.string and params.string not in msg:
+        return
+    if params.exclude_string and params.exclude_string in msg:
+        return
 
     time = data[Settings.TIME_FIELD]
-    if time_gt and time < time_gt:
-        return None, None
-    if time_lt and time > time_lt:
-        return None, None
-    if time_eq and not time.startswith(time_eq):
-        return None, None
+    if params.time_gt and time < params.time_gt:
+        return
+    if params.time_lt and time > params.time_lt:
+        return
+    if params.time_eq and not time.startswith(params.time_eq):
+        return
 
-    return time, msg
-
-
-def print_log(file_path, grep_str, exclude_str, super_str,
-              time_gt, time_lt, time_eq, verbosity):
-    with open(file_path) as f:
-        line = f.readline()
-        total_lines = 0
-        print_lines = 0
-        error_lines = 0
-        while line:
-            total_lines += 1
-            try:
-                time, msg = process_line(line, grep_str, exclude_str, super_str, time_gt, time_lt, time_eq)
-                if msg is None:
-                    continue
-                print('%s %s' % (time, msg))
-                print_lines += 1
-            except Exception as e:
-                if verbosity > 1:
-                    print(e, e.__class__, line)
-                error_lines += 1
-            finally:
-                line = f.readline()
-        if verbosity > 0:
-            print(' --- Filtered %s records (total %s, errors %s) ---' %
-                  (print_lines, total_lines, error_lines))
+    return '%s %s' % (time, msg)
 
 
-def process_stdin(grep_str, exclude_str, super_str,
-                  time_gt, time_lt, time_eq, verbosity):
+def process_lines(lines, params):
     total_lines = 0
     print_lines = 0
     error_lines = 0
-    for line in sys.stdin:
+    for line in lines:
         total_lines += 1
         try:
-            time, msg = process_line(line, grep_str, exclude_str, super_str, time_gt, time_lt, time_eq)
-            if msg is None:
+            text = process_line(line, params)
+            if text is None:
                 continue
-            print('%s %s' % (time, msg))
+            print(text)
             print_lines += 1
         except Exception as e:
-            if verbosity > 1:
+            if params.verbosity > 1:
                 print(e, e.__class__, line)
             error_lines += 1
-    if verbosity > 0:
-        print(' --- Filtered %s records (total %s, errors %s) ---' %
+    if params.verbosity > 0:
+        print(' --- Printed %s records (total %s, errors %s) ---' %
               (print_lines, total_lines, error_lines))
+
+
+def file_iterator(file_path):
+    with open(file_path) as f:
+        line = f.readline()
+        while line:
+            yield line
+            line = f.readline()
+
+
+def stdin_iterator():
+    for line in sys.stdin:
+        yield line
 
 
 if __name__ == '__main__':
@@ -99,11 +85,8 @@ if __name__ == '__main__':
     parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1, 2], default=Settings.VERBOSITY,
                         help="Increase output verbosity", nargs='?')
     args = parser.parse_args()
-    if args.file == 'stdin':
-        process_stdin(grep_str=args.string, exclude_str=args.exclude_string, super_str=args.super_string,
-                  time_gt=args.time_gt, time_lt=args.time_lt, time_eq=args.time_eq,
-                  verbosity=args.verbosity)
+    if args.file is None or args.file == 'stdin':
+        lines_iterator = stdin_iterator()
     else:
-        print_log(args.file, grep_str=args.string, exclude_str=args.exclude_string, super_str=args.super_string,
-                  time_gt=args.time_gt, time_lt=args.time_lt, time_eq=args.time_eq,
-                  verbosity=args.verbosity)
+        lines_iterator = file_iterator(args.file)
+    process_lines(lines_iterator, params=args)
