@@ -36,6 +36,12 @@ def process_line(line, params):
     if params.time_eq and not time.startswith(params.time_eq):
         return
 
+    if params.key:
+        for s in params.key:
+            k, v = s.split('=')[:2]
+            if str(data[k]) != v:
+                return
+
     return '%s %s' % (time, msg)
 
 
@@ -79,6 +85,7 @@ if __name__ == '__main__':
     parser.add_argument("-s", "--string", help="String to apply as filter to message", nargs='?')
     parser.add_argument("-xs", "--exclude_string", help="String to apply as exclude filter to message", nargs='?')
     parser.add_argument("-ss", "--super_string", help="String to apply as filter to whole json record", nargs='?')
+    parser.add_argument("-k", "--key", help="Filter json top level data, i.e. --key level=WARNING", nargs='*')
     parser.add_argument("-g", "--time_gt", help="Time is greater than", nargs='?')
     parser.add_argument("-l", "--time_lt", help="Time is less than", nargs='?')
     parser.add_argument("-t", "--time_eq", help="Time equals", nargs='?')
