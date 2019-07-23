@@ -42,7 +42,10 @@ def process_line(line, params):
             if str(data[k]) != v:
                 return
 
-    return '%s %s' % (time, msg)
+    if params.fields:
+        return ' '.join([data.get(k, '') for k in params.fields])
+    else:
+        return '%s %s' % (time, msg)
 
 
 def process_lines(lines, params):
@@ -86,12 +89,17 @@ if __name__ == '__main__':
     parser.add_argument("-xs", "--exclude_string", help="String to apply as exclude filter to message", nargs='?')
     parser.add_argument("-ss", "--super_string", help="String to apply as filter to whole json record", nargs='?')
     parser.add_argument("-k", "--key", help="Filter json top level data, i.e. --key level=WARNING", nargs='*')
+    parser.add_argument("-fs", "--fields", help="JSON fields to show, i.e. -fs=@timestamp,level,message", nargs='?')
     parser.add_argument("-g", "--time_gt", help="Time is greater than", nargs='?')
     parser.add_argument("-l", "--time_lt", help="Time is less than", nargs='?')
     parser.add_argument("-t", "--time_eq", help="Time equals", nargs='?')
     parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1, 2], default=Settings.VERBOSITY,
                         help="Increase output verbosity", nargs='?')
     args = parser.parse_args()
+
+    if args.fields:
+        args.fields = args.fields.split(',')
+
     if args.file is None or args.file == 'stdin':
         lines_iterator = stdin_iterator()
     else:
