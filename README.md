@@ -7,7 +7,8 @@ cd /var/local
 sudo git clone https://github.com/djeer/jsongrep.git
 cd jsongrep
 sudo chmod +x jsongrep.py
-sudo ln jsongrep.py /usr/bin/jsongrep
+sudo ln -s /var/local/jsongrep/jsongrep.py /usr/bin/jsongrep
+sudo chmod +x /usr/bin/jsongrep
 ```
 
 
